@@ -23,7 +23,7 @@ public interface RequestInterface {
     Call<JSONResponse> getCachorrosJSON();
 
     @GET("api/apelido/listar/{id_cachorro}")
-    Call<JSONResponse> getApelidoById(
+    Call<Apelido> getApelidoById(
             @Path("id_cachorro") String id_cachorro);
 
     @POST("api/cachorro/apelido")

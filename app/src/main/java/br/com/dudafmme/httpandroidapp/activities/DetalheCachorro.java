@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -14,11 +13,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import br.com.dudafmme.httpandroidapp.R;
-import br.com.dudafmme.httpandroidapp.adapter.CachorroAdapter;
 import br.com.dudafmme.httpandroidapp.interfaces.RequestInterface;
 import br.com.dudafmme.httpandroidapp.model.Apelido;
 import br.com.dudafmme.httpandroidapp.model.Cachorro;
@@ -37,13 +32,14 @@ public class DetalheCachorro extends AppCompatActivity {
     private Apelido mApelido;
     private TextInputEditText apelidoEditText;
     private LinearLayout detalheLinearLayout;
+    private Cachorro dog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalhe_cachorro);
 
-        Cachorro dog = (Cachorro) getIntent().getSerializableExtra("dog");
+        dog = (Cachorro) getIntent().getSerializableExtra("dog");
 
         foto = (ImageView) findViewById(R.id.foto_detailed_imv);
         id = (TextView) findViewById(R.id.id_detailed_tv);
@@ -67,12 +63,18 @@ public class DetalheCachorro extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mApelido = new Apelido(id.getText().toString(), apelidoEditText.getText().toString());
-                loadJSON();
+                loadCachorroDetalhado();
             }
         });
     }
 
-    private void loadJSON() {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadApelido(dog.getId());
+    }
+
+    private void loadCachorroDetalhado() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://caoclub.thinkmob.com.br")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -96,38 +98,40 @@ public class DetalheCachorro extends AppCompatActivity {
         });
     }
 
-    private void loadApelido() {
+    private void loadApelido(String dog) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://caoclub.thinkmob.com.br")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-//        try {
-//            RequestInterface requestInterface = retrofit.create(RequestInterface.class);
-//            Call<JSONResponse> call = requestInterface.getApelidoById(id.getText().toString());
-//            if (call != null) {
-//                call.enqueue(new Callback<JSONResponse>() {
-//                    @Override
-//                    public void onResponse(Call<JSONResponse> call, Response<JSONResponse> response) {
-//                        JSONResponse jsonResponse = response.body();
-//                        mApelido = new Apelido(jsonResponse.setApelido().getId_cachorro(),
-//                                jsonResponse.setApelido().getApelido());
-//                        apelidoEditText.setText(mApelido.getApelido());
-//                        Toast.makeText(getApplicationContext(), mApelido.toString(),
-//                                Toast.LENGTH_LONG).show();
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<JSONResponse> call, Throwable t) {
-//                        Snackbar.make(detalheLinearLayout, "Erro!", Snackbar.LENGTH_LONG).show();
-//                    }
-//                });
-//            } else {
-//                apelidoEditText.setText("Cachorro sem apelido!");
-//            }
-//        } catch (NullPointerException n) {
-//            //
-//        }
+        try {
+            RequestInterface requestInterface = retrofit.create(RequestInterface.class);
+            Call<Apelido> call = requestInterface.getApelidoById(dog);
+            if (call != null) {
+                call.enqueue(new Callback<Apelido>() {
+                    @Override
+                    public void onResponse(Call<Apelido> call, Response<Apelido> response) {
+                        Apelido apelido = response.body();
+                        if (apelido.getApelido() != null) {
+                            apelidoEditText.setText(apelido.getApelido());
+                            Toast.makeText(getApplicationContext(), apelido.getApelido(),
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            apelidoEditText.setText("Cachorro sem apelido!");
+                        }
 
+                    }
+
+                    @Override
+                    public void onFailure(Call<Apelido> call, Throwable t) {
+                        Snackbar.make(detalheLinearLayout, "Erro!", Snackbar.LENGTH_LONG).show();
+                    }
+                });
+            } else {
+                apelidoEditText.setText("Cachorro sem apelido!");
+            }
+        } catch (NullPointerException n) {
+            //
+        }
     }
 }
