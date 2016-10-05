@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -71,12 +72,14 @@ public class CachorroAdapter extends RecyclerView.Adapter<CachorroAdapter.Cachor
         private TextView idTextView;
         private TextView nomeTextView;
         private TextView racaTextView;
+        private CheckBox cachorroCheckBox;
 
         public CachorroViewHolder(View parent) {
             super(parent);
             idTextView = (TextView) parent.findViewById(R.id.id_tv);
             nomeTextView = (TextView) parent.findViewById(R.id.nome_tv);
             racaTextView = (TextView) parent.findViewById(R.id.raca_tv);
+            cachorroCheckBox = (CheckBox) parent.findViewById(R.id.check_dog_cb);
         }
     }
 }
