@@ -1,5 +1,7 @@
 package br.com.dudafmme.httpandroidapp.model;
 
+import android.widget.CheckBox;
+
 import java.io.Serializable;
 
 /**
@@ -27,33 +29,7 @@ public class Cachorro implements Serializable {
     private String gripe_data;
     private String marca_racao;
     private String std_racao;
-
-    public Cachorro(String id, String nome, String raca, String genero, String nascimento,
-                    String data_cadastro, String foto, String ativo, String castrado,
-                    String observacao, String v8, String raiva, String giardia,
-                    String gripe, String v8_data, String raiva_data,
-                    String giardia_data, String gripe_data, String marca_racao, String std_racao) {
-        this.id = id;
-        this.nome = nome;
-        this.raca = raca;
-        this.genero = genero;
-        this.nascimento = nascimento;
-        this.data_cadastro = data_cadastro;
-        this.foto = foto;
-        this.ativo = ativo;
-        this.castrado = castrado;
-        this.observacao = observacao;
-        this.v8 = v8;
-        this.raiva = raiva;
-        this.giardia = giardia;
-        this.gripe = gripe;
-        this.v8_data = v8_data;
-        this.raiva_data = raiva_data;
-        this.giardia_data = giardia_data;
-        this.gripe_data = gripe_data;
-        this.marca_racao = marca_racao;
-        this.std_racao = std_racao;
-    }
+    private boolean dogSelected;
 
     public Cachorro() {
     }
@@ -218,4 +194,11 @@ public class Cachorro implements Serializable {
         this.std_racao = std_racao;
     }
 
+    public boolean isDogSelected() {
+        return dogSelected;
+    }
+
+    public void setDogSelected(boolean dogSelected) {
+        this.dogSelected = dogSelected;
+    }
 }

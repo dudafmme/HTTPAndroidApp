@@ -1,14 +1,21 @@
 package br.com.dudafmme.httpandroidapp.adapter;
 
+import android.content.ClipData;
+import android.content.ClipData.Item;
 import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import br.com.dudafmme.httpandroidapp.R;
 import br.com.dudafmme.httpandroidapp.model.Cachorro;
@@ -23,9 +30,13 @@ public class CachorroAdapter extends RecyclerView.Adapter<CachorroAdapter.Cachor
     private ArrayList<Cachorro> mCachorros;
     private AoClicarNoCachorroListener mListener;
 
-    public CachorroAdapter(Context ctx, ArrayList<Cachorro> cachorros) {
+    @NonNull
+    private OnItemCheckListener onItemClick;
+
+    public CachorroAdapter(Context ctx, ArrayList<Cachorro> mCachorros, ArrayList<Cachorro> cachorros, @NonNull OnItemCheckListener onItemCheckListener) {
         mContext = ctx;
-        mCachorros = cachorros;
+        this.mCachorros = cachorros;
+        this.onItemClick = onItemCheckListener;
     }
 
     public void setAoClicarNoCachorroListener(AoClicarNoCachorroListener listener) {
@@ -56,11 +67,37 @@ public class CachorroAdapter extends RecyclerView.Adapter<CachorroAdapter.Cachor
     }
 
     @Override
-    public void onBindViewHolder(CachorroViewHolder holder, int position) {
-        Cachorro cachorro = mCachorros.get(position);
+    public void onBindViewHolder(CachorroViewHolder holder, final int position) {
+        final Cachorro cachorro = mCachorros.get(position);
         holder.idTextView.setText(cachorro.getId());
         holder.nomeTextView.setText(cachorro.getNome());
         holder.racaTextView.setText(cachorro.getRaca());
+
+        holder.cachorroCheckBox.setChecked(cachorro.isDogSelected());
+        holder.cachorroCheckBox.setTag(cachorro);
+        holder.cachorroCheckBox
+                .setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                CheckBox cb = (CheckBox) v;
+                                Cachorro dog = (Cachorro) cb.getTag();
+                                dog.setDogSelected(cb.isChecked());
+                                mCachorros.get(position).setDogSelected(cb.isChecked());
+
+                                Toast.makeText(v.getContext(), "Checkbox: "
+                                                + dog.getId() + " is " + cb.isChecked(),
+                                        Toast.LENGTH_LONG).show();
+
+                            }
+                        }
+                );
+
+        if(holder.cachorroCheckBox.isChecked()){
+            onItemClick.onItemCheck(cachorro);
+        } else {
+            onItemClick.onItemUncheck(cachorro);
+        }
     }
 
 
@@ -80,6 +117,13 @@ public class CachorroAdapter extends RecyclerView.Adapter<CachorroAdapter.Cachor
             nomeTextView = (TextView) parent.findViewById(R.id.nome_tv);
             racaTextView = (TextView) parent.findViewById(R.id.raca_tv);
             cachorroCheckBox = (CheckBox) parent.findViewById(R.id.check_dog_cb);
+            //cachorroCheckBox.setClickable(false);
         }
     }
+
+    public interface OnItemCheckListener {
+        void onItemCheck(Cachorro c);
+        void onItemUncheck(Cachorro c);
+    }
+
 }
