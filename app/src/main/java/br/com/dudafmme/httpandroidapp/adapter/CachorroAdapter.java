@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.dudafmme.httpandroidapp.R;
+import br.com.dudafmme.httpandroidapp.activities.MainActivity;
 import br.com.dudafmme.httpandroidapp.model.Cachorro;
 
 /**
@@ -29,14 +30,11 @@ public class CachorroAdapter extends RecyclerView.Adapter<CachorroAdapter.Cachor
     Context mContext;
     private ArrayList<Cachorro> mCachorros;
     private AoClicarNoCachorroListener mListener;
+    //static MainActivity mainActivity;
 
-    @NonNull
-    private OnItemCheckListener onItemClick;
-
-    public CachorroAdapter(Context ctx, ArrayList<Cachorro> mCachorros, ArrayList<Cachorro> cachorros, @NonNull OnItemCheckListener onItemCheckListener) {
+    public CachorroAdapter(Context ctx, ArrayList<Cachorro> cachorros) {
         mContext = ctx;
         this.mCachorros = cachorros;
-        this.onItemClick = onItemCheckListener;
     }
 
     public void setAoClicarNoCachorroListener(AoClicarNoCachorroListener listener) {
@@ -51,7 +49,7 @@ public class CachorroAdapter extends RecyclerView.Adapter<CachorroAdapter.Cachor
     @Override
     public CachorroViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_dog, parent, false);
-        CachorroViewHolder vh = new CachorroViewHolder(view);
+        CachorroViewHolder vh = new CachorroViewHolder(view, (MainActivity) view.getContext());
         view.setTag(vh);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,44 +58,22 @@ public class CachorroAdapter extends RecyclerView.Adapter<CachorroAdapter.Cachor
                     CachorroViewHolder vh = (CachorroViewHolder) v.getTag();
                     int position = vh.getAdapterPosition();
                     mListener.aoClicarNoCachorro(v, position, mCachorros.get(position));
+
                 }
+
             }
         });
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(CachorroViewHolder holder, final int position) {
+    public void onBindViewHolder(final CachorroViewHolder holder, final int position) {
         final Cachorro cachorro = mCachorros.get(position);
         holder.idTextView.setText(cachorro.getId());
         holder.nomeTextView.setText(cachorro.getNome());
         holder.racaTextView.setText(cachorro.getRaca());
-
         holder.cachorroCheckBox.setChecked(cachorro.isDogSelected());
-        holder.cachorroCheckBox.setTag(cachorro);
-        holder.cachorroCheckBox
-                .setOnClickListener(
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                CheckBox cb = (CheckBox) v;
-                                Cachorro dog = (Cachorro) cb.getTag();
-                                dog.setDogSelected(cb.isChecked());
-                                mCachorros.get(position).setDogSelected(cb.isChecked());
 
-                                Toast.makeText(v.getContext(), "Checkbox: "
-                                                + dog.getId() + " is " + cb.isChecked(),
-                                        Toast.LENGTH_LONG).show();
-
-                            }
-                        }
-                );
-
-        if(holder.cachorroCheckBox.isChecked()){
-            onItemClick.onItemCheck(cachorro);
-        } else {
-            onItemClick.onItemUncheck(cachorro);
-        }
     }
 
 
@@ -105,25 +81,27 @@ public class CachorroAdapter extends RecyclerView.Adapter<CachorroAdapter.Cachor
         void aoClicarNoCachorro(View v, int position, Cachorro c);
     }
 
-    public static class CachorroViewHolder extends RecyclerView.ViewHolder {
+    public static class CachorroViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView idTextView;
         private TextView nomeTextView;
         private TextView racaTextView;
         private CheckBox cachorroCheckBox;
+        private MainActivity mainActivity;
 
-        public CachorroViewHolder(View parent) {
+        public CachorroViewHolder(View parent, MainActivity mActivity) {
             super(parent);
+            this.mainActivity = mActivity;
             idTextView = (TextView) parent.findViewById(R.id.id_tv);
             nomeTextView = (TextView) parent.findViewById(R.id.nome_tv);
             racaTextView = (TextView) parent.findViewById(R.id.raca_tv);
             cachorroCheckBox = (CheckBox) parent.findViewById(R.id.check_dog_cb);
-            //cachorroCheckBox.setClickable(false);
+            cachorroCheckBox.setOnClickListener(this);
+
+        }
+
+        @Override
+        public void onClick(View v) {
+            mainActivity.prepararSelecao(v, getAdapterPosition());
         }
     }
-
-    public interface OnItemCheckListener {
-        void onItemCheck(Cachorro c);
-        void onItemUncheck(Cachorro c);
-    }
-
 }

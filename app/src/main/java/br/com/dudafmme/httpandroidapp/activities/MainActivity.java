@@ -1,7 +1,5 @@
 package br.com.dudafmme.httpandroidapp.activities;
 
-import android.content.ClipData;
-import android.content.ClipData.Item;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -12,11 +10,11 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import br.com.dudafmme.httpandroidapp.R;
 import br.com.dudafmme.httpandroidapp.adapter.CachorroAdapter;
@@ -33,18 +31,19 @@ public class MainActivity extends AppCompatActivity implements CachorroAdapter.A
 
     private RecyclerView mRecycler;
     private ArrayList<Cachorro> mCachorros;
-    private TextView qtdeDogsChecked;
-    private String qtde;
+    private TextView dogsCheckedTextView;
 
-    List<Cachorro> currentSelectedItems = new ArrayList<>();
+    private boolean is_dog_checked;
+
+    ArrayList<Cachorro> dogsChecked = new ArrayList<>();
+    int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        qtdeDogsChecked = (TextView) findViewById(R.id.qtde_dogs_checked);
-
+        dogsCheckedTextView = (TextView) findViewById(R.id.dogs_checked_tv);
         mRecycler = (RecyclerView) findViewById(R.id.recycler);
         mRecycler.setTag("dogs");
         mRecycler.setHasFixedSize(true);
@@ -54,14 +53,13 @@ public class MainActivity extends AppCompatActivity implements CachorroAdapter.A
 
         loadCachorro();
 
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        qtde = Integer.toString(currentSelectedItems.size());
-        qtdeDogsChecked.setText(qtde);
+
+
     }
 
     private void loadCachorro() {
@@ -78,19 +76,20 @@ public class MainActivity extends AppCompatActivity implements CachorroAdapter.A
             public void onResponse(Call<JSONResponse> call, Response<JSONResponse> response) {
                 JSONResponse jsonResponse = response.body();
                 mCachorros = new ArrayList<>(Arrays.asList(jsonResponse.getCachorro()));
-                CachorroAdapter adapter = new CachorroAdapter(getApplicationContext(), mCachorros, mCachorros, new CachorroAdapter.OnItemCheckListener() {
-                    @Override
-                    public void onItemCheck(Cachorro c) {
-                        currentSelectedItems.add(c);
-                    }
-
-                    @Override
-                    public void onItemUncheck(Cachorro c) {
-                        currentSelectedItems.remove(c);
-                    }
-                });
+                CachorroAdapter adapter = new CachorroAdapter(getApplicationContext(), mCachorros);
                 adapter.setAoClicarNoCachorroListener(MainActivity.this);
                 mRecycler.setAdapter(adapter);
+
+//                int qtde = mCachorros.size();
+//
+//                for (int i = 0; i < qtde; i++) {
+//                    Cachorro c = mCachorros.get(i);
+//                    if (c.isDogSelected()) {
+//                        dogChecked.add(c);
+//                        int qtDog = dogChecked.size();
+//                        qtdeDogsCheckedTv.setText(qtDog);
+//                    }
+//                }
             }
 
             @Override
@@ -109,11 +108,33 @@ public class MainActivity extends AppCompatActivity implements CachorroAdapter.A
                         Pair.create(v.findViewById(R.id.id_tv), "id"),
                         Pair.create(v.findViewById(R.id.nome_tv), "nome"),
                         Pair.create(v.findViewById(R.id.raca_tv), "raca"),
-                        Pair.create(v.findViewById(R.id.check_dog_cb),"checked")
+                        Pair.create(v.findViewById(R.id.check_dog_cb), "checked")
                 );
         Intent it = new Intent(getApplicationContext(), DetalheCachorro.class);
         it.putExtra("dog", c);
         ActivityCompat.startActivity(this, it, options.toBundle());
+    }
+
+    public void prepararSelecao(View v, int position) {
+        if (((CheckBox) v).isChecked()) {
+            dogsChecked.add(mCachorros.get(position));
+            count++;
+            atualizarContador(count);
+        } else {
+            dogsChecked.remove(mCachorros.get(position));
+            count--;
+            atualizarContador(count);
+
+        }
+    }
+
+    public void atualizarContador(int count) {
+        String countTxt = Integer.toString(count);
+        if (count == 0) {
+            dogsCheckedTextView.setText("0");
+        } else {
+            dogsCheckedTextView.setText(countTxt);
+        }
     }
 
 }

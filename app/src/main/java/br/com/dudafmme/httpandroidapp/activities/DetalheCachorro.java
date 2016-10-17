@@ -85,7 +85,7 @@ public class DetalheCachorro extends AppCompatActivity {
         call.enqueue(new Callback<JSONResponse>() {
             @Override
             public void onResponse(Call<JSONResponse> call, Response<JSONResponse> response) {
-                Snackbar.make(detalheLinearLayout, "Apelido: " + mApelido.getApelido().toString()
+                Snackbar.make(detalheLinearLayout, "Apelido: " + mApelido.getApelido()
                                 + "\nAlterado com Sucesso!",
                         Snackbar.LENGTH_LONG).show();
                 apelidoEditText.setText("");
