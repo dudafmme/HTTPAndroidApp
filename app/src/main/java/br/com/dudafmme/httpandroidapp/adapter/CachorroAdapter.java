@@ -1,4 +1,4 @@
-package br.com.dudafmme.httpandroidapp.adapter;
+    package br.com.dudafmme.httpandroidapp.adapter;
 
 import android.content.ClipData;
 import android.content.ClipData.Item;
@@ -30,7 +30,6 @@ public class CachorroAdapter extends RecyclerView.Adapter<CachorroAdapter.Cachor
     Context mContext;
     private ArrayList<Cachorro> mCachorros;
     private AoClicarNoCachorroListener mListener;
-    //static MainActivity mainActivity;
 
     public CachorroAdapter(Context ctx, ArrayList<Cachorro> cachorros) {
         mContext = ctx;

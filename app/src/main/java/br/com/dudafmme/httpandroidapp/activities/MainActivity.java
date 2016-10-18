@@ -2,6 +2,7 @@ package br.com.dudafmme.httpandroidapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -33,16 +34,19 @@ public class MainActivity extends AppCompatActivity implements CachorroAdapter.A
     private ArrayList<Cachorro> mCachorros;
     private TextView dogsCheckedTextView;
 
-    private boolean is_dog_checked;
-
     ArrayList<Cachorro> dogsChecked = new ArrayList<>();
     int count = 0;
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        //outState.putString("qtdeDogs", dogsCheckedTextView.getText().toString());
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         dogsCheckedTextView = (TextView) findViewById(R.id.dogs_checked_tv);
         mRecycler = (RecyclerView) findViewById(R.id.recycler);
         mRecycler.setTag("dogs");
@@ -50,19 +54,22 @@ public class MainActivity extends AppCompatActivity implements CachorroAdapter.A
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         mRecycler.setLayoutManager(layoutManager);
         mRecycler.setItemAnimator(new DefaultItemAnimator());
+    }
 
-        loadCachorro();
-
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-
+        loadCachorro();
     }
 
     private void loadCachorro() {
+        //Implementar um if pra não carregar toda hora o array
+        //implementar um swipetorefresh pra carregar o json
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://caoclub.thinkmob.com.br")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -79,17 +86,6 @@ public class MainActivity extends AppCompatActivity implements CachorroAdapter.A
                 CachorroAdapter adapter = new CachorroAdapter(getApplicationContext(), mCachorros);
                 adapter.setAoClicarNoCachorroListener(MainActivity.this);
                 mRecycler.setAdapter(adapter);
-
-//                int qtde = mCachorros.size();
-//
-//                for (int i = 0; i < qtde; i++) {
-//                    Cachorro c = mCachorros.get(i);
-//                    if (c.isDogSelected()) {
-//                        dogChecked.add(c);
-//                        int qtDog = dogChecked.size();
-//                        qtdeDogsCheckedTv.setText(qtDog);
-//                    }
-//                }
             }
 
             @Override
@@ -97,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements CachorroAdapter.A
                 //Log
             }
         });
-
     }
 
     @Override
@@ -116,15 +111,19 @@ public class MainActivity extends AppCompatActivity implements CachorroAdapter.A
     }
 
     public void prepararSelecao(View v, int position) {
+        Cachorro cachorroIsChecked;
         if (((CheckBox) v).isChecked()) {
-            dogsChecked.add(mCachorros.get(position));
+            cachorroIsChecked = mCachorros.get(position);
+            cachorroIsChecked.setDogSelected(true);
+            dogsChecked.add(cachorroIsChecked);
             count++;
             atualizarContador(count);
         } else {
+            cachorroIsChecked = mCachorros.get(position);
+            cachorroIsChecked.setDogSelected(false);
             dogsChecked.remove(mCachorros.get(position));
             count--;
             atualizarContador(count);
-
         }
     }
 
@@ -136,5 +135,4 @@ public class MainActivity extends AppCompatActivity implements CachorroAdapter.A
             dogsCheckedTextView.setText(countTxt);
         }
     }
-
 }
